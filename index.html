@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Full Stack Development Cheatsheet</title>
+<style>
+:root{--bg:#fafaf9;--fg:#222;--mut:#666;--line:#d8d8d4;--code:#efefec}
+:root[data-theme=dark]{--bg:#171717;--fg:#e6e6e6;--mut:#999;--line:#333;--code:#222}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,sans-serif}
+button,input{font:inherit;font-size:14px;color:inherit;background:var(--code);border:1px solid var(--line);border-radius:6px;padding:4px 10px;cursor:pointer}
+input{cursor:text;flex:1;max-width:320px}
+:focus-visible{outline:2px solid var(--fg);outline-offset:2px}
+.top{position:fixed;top:0;left:0;right:0;height:52px;display:flex;align-items:center;gap:10px;padding:0 14px;background:var(--bg);border-bottom:1px solid var(--line);z-index:5}
+.brand{font:700 15px ui-monospace,Consolas,monospace;margin-right:auto}
+#sb{position:fixed;top:52px;bottom:0;left:0;width:240px;overflow:auto;border-right:1px solid var(--line);padding:10px 8px;background:var(--bg);transition:transform .2s;z-index:4}
+body.shut #sb{transform:translateX(-100%)}
+#sb h3{font-size:12px;color:var(--mut);font-weight:600;margin:12px 10px 4px}
+#sb a{display:flex;justify-content:space-between;gap:8px;padding:5px 10px;border-radius:6px;color:var(--fg);text-decoration:none;font-size:14px}
+#sb a:hover,#sb a.on{background:var(--code)}
+#sb a span{color:var(--mut);font-size:12px}
+main{margin:52px 0 0 240px;padding:24px 28px 60px;max-width:1000px}
+body.shut main{margin-left:0}
+h1{font-size:24px;margin:0 0 4px}
+h2{font-size:16px;margin:22px 0 4px}
+.sub,.d{color:var(--mut);margin:0 0 10px;font-size:14px}
+.tag{margin-left:6px;font-size:11px;font-weight:400;color:var(--mut);border:1px solid var(--line);border-radius:4px;padding:0 4px}
+.stats{display:flex;gap:10px;flex-wrap:wrap;margin:16px 0}
+.stats div{border:1px solid var(--line);border-radius:8px;padding:8px 16px;font-weight:600}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
+.gc{display:block;border:1px solid var(--line);border-radius:8px;padding:12px;color:var(--fg);text-decoration:none}
+.gc:hover{border-color:var(--fg)}
+.gc b{display:block;margin:4px 0 0}.gc small{color:var(--mut);display:block}
+.blk{border:1px solid var(--line);border-radius:6px;overflow:hidden;margin:0 0 8px}
+.bh{display:flex;justify-content:space-between;align-items:center;background:var(--code);padding:3px 8px;font-size:12px;color:var(--mut)}
+.bh button{padding:0 8px;font-size:12px}
+pre{margin:0;padding:10px 12px;overflow-x:auto;font:12.5px/1.5 ui-monospace,Consolas,monospace}
+table{border-collapse:collapse;margin:0 0 14px}
+th,td{border:1px solid var(--line);padding:4px 10px;text-align:left;font-size:14px}
+th{background:var(--code)}
+.q{font-weight:600;margin-top:14px}.a{white-space:pre-wrap;margin:2px 0 0;font-size:14px}
+@media(max-width:760px){main{margin-left:0;padding:20px 16px 60px}#sb{transform:translateX(-100%)}body.open #sb{transform:none}}
+</style>
+</head>
+<body>
+<div class="top"><button id="mb" aria-label="Toggle menu">&#9776;</button><span class="brand">&lt;FSD/&gt; cheatsheet</span><input id="q" type="search" placeholder="Search" aria-label="Search"><button id="th" aria-label="Toggle theme">&#9681;</button></div>
+<nav id="sb" aria-label="Menu"></nav>
+<main id="main"></main>
+<script>
+// [title, exam question, explanation, snippet]
+const T=[
+["Introduction to Node.js REPL","Q1","Read-Eval-Print Loop: an interactive Node shell. Type JS, get the result at once.","node\n> 2+3\n5\n> .help   (.save .load .editor .clear)\n> .exit    (or Ctrl+C twice)"],
+["Creating JavaScript Files in Node.js","Q1","Write JS in a file and run it with node. console.log prints to the terminal.","// app.js\nconsole.log('Hello Node');\n\nnode app.js"],
+["Creating a Node.js Project using npm","Q1","npm init creates package.json. npm install adds packages to node_modules.","npm init -y\nnpm install express\nnpm install -D nodemon\n// package.json: \"scripts\":{\"start\":\"node app.js\"}"],
+["Creating a Basic HTTP Server using Node.js","Q1","The built-in http module creates a server. The callback runs for every request.","const http=require('http');\nhttp.createServer((req,res)=>{\n  res.writeHead(200,{'Content-Type':'text/plain'});\n  res.end('Hello');\n}).listen(3000);"],
+["Installing and Configuring Express.js","Q2","Express is a web framework on top of http. Install, create the app, listen on a port.","npm i express\nconst express=require('express');\nconst app=express();\napp.use(express.json()); // parse JSON bodies\napp.listen(5000,()=>console.log('Running'));"],
+["Express Routing","Q2","A route = HTTP method + path + handler. Params in req.params, query in req.query, body in req.body.","app.get('/', (req,res)=>res.send('Home'));\napp.get('/user/:id',(req,res)=>res.json({id:req.params.id}));\napp.get('/search',(req,res)=>res.send(req.query.name));\napp.post('/add',(req,res)=>res.json(req.body));\napp.put('/u/:id',...); app.delete('/u/:id',...);"],
+["User-Defined Modules","Q1","Your own file becomes a module with module.exports; load it with require and a relative path.","// math.js\nexports.add=(a,b)=>a+b;   // or module.exports={add}\n// app.js\nconst m=require('./math');\nconsole.log(m.add(2,3));"],
+["Synchronous File Operations using fs Module","Q1","Sync methods block until done. Fine for scripts, avoid in servers.","const fs=require('fs');\nfs.writeFileSync('a.txt','Hi');\nfs.appendFileSync('a.txt',' there');\nconsole.log(fs.readFileSync('a.txt','utf8'));\nfs.existsSync('a.txt'); fs.unlinkSync('a.txt');"],
+["File Operations using fs and path Modules","Q1","path builds safe file paths. fs also handles folders and renaming.","const path=require('path');\nconst p=path.join(__dirname,'data','a.txt');\npath.basename(p); path.extname(p); path.dirname(p);\nfs.mkdirSync('data'); fs.readdirSync('data');\nfs.renameSync('a.txt','b.txt'); fs.rmdirSync('data');"],
+["Colors Module","Q1","Third-party npm package to colour console text.","npm i colors\nrequire('colors');\nconsole.log('Done'.green.bold);\nconsole.log('Error'.red.underline);"],
+["Serving HTML Pages using res.sendFile()","Q2","Send an HTML file as the response. sendFile needs an absolute path.","app.get('/',(req,res)=>{\n  res.sendFile(path.join(__dirname,'index.html'));\n});"],
+["Serving Static Files using Express","Q2","express.static serves a whole folder (css, js, images) without writing routes.","app.use(express.static('public'));\n// public/style.css -> http://localhost:5000/style.css"],
+["Asynchronous Programming","Q1","Node is single-threaded and non-blocking: slow tasks (I/O, timers) run in the background and the event loop runs their callbacks later.","console.log('1');\nsetTimeout(()=>console.log('2'),1000);\nconsole.log('3');  // prints 1, 3, 2"],
+["Callback Functions","Q1","A function passed to another function, run when the work finishes. Node style is error-first.","fs.readFile('a.txt','utf8',(err,data)=>{\n  if(err) return console.log(err.message);\n  console.log(data);\n});"],
+["Event Emitters","Q1","The events module lets objects emit named events and others listen.","const EventEmitter=require('events');\nconst e=new EventEmitter();\ne.on('greet',name=>console.log('Hi '+name));\ne.once('start',()=>console.log('once'));\ne.emit('greet','Sam');"],
+["Exception Handling","Q1","try/catch handles errors; finally always runs. throw creates your own error.","try{\n  JSON.parse('bad');\n}catch(err){\n  console.log(err.message);\n}finally{console.log('always');}\nthrow new Error('Custom');\nprocess.on('uncaughtException',e=>console.log(e));"],
+["Promises in Node.js","Q1","An object for a future result: pending, fulfilled (resolve) or rejected (reject). async/await is cleaner syntax.","const p=new Promise((resolve,reject)=>{\n  setTimeout(()=>resolve('ok'),1000);\n});\np.then(v=>console.log(v)).catch(e=>console.log(e));\nasync function run(){ try{ console.log(await p);}catch(e){} }"],
+["Promise Chaining","Q1","Each .then returns a new promise so steps run one after another. One .catch handles any failure above it.","step1().then(a=>step2(a)).then(b=>step3(b))\n  .catch(err=>console.log(err))\n  .finally(()=>console.log('end'));\nPromise.all([p1,p2]).then(([a,b])=>{});"],
+["Command Line Arguments","Q1","process.argv is an array: [node path, file path, ...your args]. All values are strings.","// node sum.js 4 6\nconst a=Number(process.argv[2]);\nconst b=Number(process.argv[3]);\nconsole.log(a+b);"],
+["Readable Streams","Q1","Read big files in chunks instead of all at once.","const rs=fs.createReadStream('a.txt','utf8');\nrs.on('data',chunk=>console.log(chunk));\nrs.on('end',()=>console.log('done'));\nrs.on('error',e=>console.log(e.message));"],
+["Writable Streams","Q1","Write data in pieces. end() closes the stream.","const ws=fs.createWriteStream('out.txt');\nws.write('line 1\\n');\nws.end('last line');\nws.on('finish',()=>console.log('written'));"],
+["Pipe","Q1","Connects a readable stream to a writable one. Handles chunking for you.","fs.createReadStream('a.txt').pipe(fs.createWriteStream('copy.txt'));\n// with compression\nconst zlib=require('zlib');\nrs.pipe(zlib.createGzip()).pipe(fs.createWriteStream('a.gz'));"],
+["Standard Streams","Q1","stdin (input), stdout (output), stderr (errors). console.log writes to stdout.","process.stdout.write('Name: ');\nprocess.stdin.on('data',d=>{\n  console.log('Hi '+d.toString().trim());\n  process.exit();\n});\nprocess.stderr.write('error text');"],
+["Routes in Node.js (using Postman app)","Q3","Postman tests routes without a frontend. GET: pick method + URL. POST/PUT: Body > raw > JSON, and the server needs express.json().","POST http://localhost:5000/users\nBody (raw, JSON): {\"name\":\"Asha\",\"email\":\"a@x.com\"}\nGET  http://localhost:5000/users\nPUT  http://localhost:5000/users/1\nDELETE http://localhost:5000/users/1"],
+["Gateway","Q1","API gateway = single entry point that forwards requests to different services.","npm i http-proxy-middleware\nconst {createProxyMiddleware}=require('http-proxy-middleware');\napp.use('/users',createProxyMiddleware({target:'http://localhost:4001',changeOrigin:true}));\napp.use('/orders',createProxyMiddleware({target:'http://localhost:4002',changeOrigin:true}));"],
+["Cron","Q1","node-cron runs a task on a schedule. Fields: minute hour day-of-month month day-of-week.","npm i node-cron\nconst cron=require('node-cron');\ncron.schedule('* * * * *',()=>console.log('every minute'));\ncron.schedule('*/5 * * * *',fn);  // every 5 min\ncron.schedule('0 9 * * 1',fn);    // Mon 9:00"],
+["Webpack-bundling and configuration","Q1","Bundles many JS files into one output file.","npm i -D webpack webpack-cli\n// webpack.config.js\nconst path=require('path');\nmodule.exports={\n  mode:'development',\n  entry:'./src/index.js',\n  output:{path:path.resolve(__dirname,'dist'),filename:'bundle.js'}\n};\nnpx webpack"],
+["Sequelize","Q2 Q3","ORM: tables become models (JS classes). Connect, define a model, sync to create the table. Associations link models.","npm i sequelize mysql2   // change dialect for another DB\nconst {Sequelize,DataTypes}=require('sequelize');\nconst db=new Sequelize('shop','root','pass',{host:'localhost',dialect:'mysql'});\nconst User=db.define('User',{name:DataTypes.STRING,email:DataTypes.STRING});\nconst Post=db.define('Post',{title:DataTypes.STRING});\nawait db.sync();   // sync({force:true}) drops and recreates\n\n// Associations (Q3)\nUser.hasMany(Post,{foreignKey:'userId'});   // one-to-many\nPost.belongsTo(User,{foreignKey:'userId'});\n// hasOne = one-to-one; belongsToMany(B,{through:'AB'}) = many-to-many\nUser.findAll({include:Post});   // join"],
+["Migration","Q2","Version control for the database schema: change tables with up/down files instead of sync().","npm i -D sequelize-cli\nnpx sequelize-cli init\nnpx sequelize-cli model:generate --name User --attributes name:string,email:string\nnpx sequelize-cli db:migrate\nnpx sequelize-cli db:migrate:undo"],
+["Model Querying","Q2","CRUD with models. where filters; Op gives operators.","await User.create({name:'Asha'});\nawait User.findAll({where:{name:'Asha'}});\nawait User.findOne({where:{id:1}}); User.findByPk(1);\nawait User.update({name:'New'},{where:{id:1}});\nawait User.destroy({where:{id:1}});\nconst {Op}=require('sequelize');\nUser.findAll({where:{id:{[Op.gt]:5}},order:[['name','ASC']],limit:10});"],
+["Validations and Constraints","Q2","Rules on a column. Invalid data throws SequelizeValidationError.","email:{type:DataTypes.STRING,allowNull:false,unique:true,\n  validate:{isEmail:true}},\nname:{type:DataTypes.STRING,validate:{len:[3,30]}},\nage:{type:DataTypes.INTEGER,defaultValue:18,validate:{min:1}}"],
+["Raw Queries","Q2","Run plain SQL when the ORM is not enough. Use replacements to avoid SQL injection.","const {QueryTypes}=require('sequelize');\nconst rows=await db.query('SELECT * FROM Users WHERE id = ?',\n  {replacements:[1],type:QueryTypes.SELECT});"],
+["Frontend Framework: install and create React app","Q4","Vite creates the React project and dev server (default http://localhost:5173).","npm create vite@latest myapp -- --template react\ncd myapp\nnpm install\nnpm run dev\n// entry: src/main.jsx, main component: src/App.jsx"],
+["Props and Hooks","Q4","Props pass data from parent to child (read-only). Hooks are functions starting with use. Call them only at the top level of a component, never inside loops or conditions.","function Card({name,age=18}){return <h3>{name} {age}</h3>;}   // <Card name=\"Sam\" age={20}/>\n\nimport {useState,useEffect,useRef,useContext,createContext,useReducer,useMemo,useCallback,useLayoutEffect,useId} from 'react';\n\n// useState: value + setter\nconst [count,setCount]=useState(0);   setCount(c=>c+1);\n\n// useEffect: side effects (fetch, timers). [] = once, [x] = when x changes, return = cleanup\nuseEffect(()=>{ document.title=count; return ()=>{}; },[count]);\n\n// useRef: DOM access, or a value that does not re-render\nconst box=useRef(null);   // <input ref={box}/>   box.current.focus();\n\n// useContext: share data without passing props\nconst Theme=createContext('light');   // <Theme.Provider value='dark'>\nconst t=useContext(Theme);\n\n// useReducer: complex state, like a mini Redux\nconst [st,dispatch]=useReducer((s,a)=>a.type=='inc'?{n:s.n+1}:s,{n:0});   dispatch({type:'inc'});\n\n// useMemo: cache a calculated value\nconst total=useMemo(()=>items.reduce((a,i)=>a+i.price,0),[items]);\n\n// useCallback: cache a function between renders\nconst add=useCallback(()=>setCount(c=>c+1),[]);\n\n// useLayoutEffect: like useEffect but runs before the screen paints\n// useId: unique id for labels   const id=useId();\n\n// Custom hook: your own function whose name starts with use\nfunction useFetch(url){const [d,setD]=useState(null);useEffect(()=>{fetch(url).then(r=>r.json()).then(setD)},[url]);return d;}\n\n// Router hooks: useParams, useNavigate, useLocation   Redux hooks: useSelector, useDispatch"],
+["Routing in React using React Router","Q4","Client-side navigation without page reload.","npm i react-router-dom\nimport {BrowserRouter,Routes,Route,Link,useParams} from 'react-router-dom';\n<BrowserRouter>\n  <Link to=\"/about\">About</Link>\n  <Routes>\n    <Route path=\"/\" element={<Home/>}/>\n    <Route path=\"/user/:id\" element={<User/>}/>\n  </Routes>\n</BrowserRouter>\n// in User: const {id}=useParams();"],
+["Redux and Dispatch","Q4","Global state in one store. A component dispatches an action, the reducer updates the state.","npm i @reduxjs/toolkit react-redux\nconst slice=createSlice({name:'counter',initialState:{v:0},\n  reducers:{inc:s=>{s.v+=1}}});\nexport const {inc}=slice.actions;\nconst store=configureStore({reducer:{counter:slice.reducer}});\n// <Provider store={store}><App/></Provider>\nconst v=useSelector(s=>s.counter.v);\nconst dispatch=useDispatch(); dispatch(inc());"],
+["Mini Project: integration (Q2) and CORS","Q2","Order: backend (install, model, sync, routes) then React, then connect with fetch. Browsers block a frontend on 5173 calling a backend on 5000 unless the server sends CORS headers. Postman is not affected. Without it: 'blocked by CORS policy: No Access-Control-Allow-Origin header'.","// backend: npm i express sequelize mysql2 cors\nconst express=require('express'),cors=require('cors');\nconst {Sequelize,DataTypes}=require('sequelize');\nconst db=new Sequelize('shop','root','pass',{host:'localhost',dialect:'mysql'});\nconst Item=db.define('Item',{name:{type:DataTypes.STRING,allowNull:false},price:DataTypes.INTEGER});\nconst app=express();\napp.use(cors());   // or cors({origin:'http://localhost:5173'})\napp.use(express.json());\napp.get('/items',async(q,r)=>r.json(await Item.findAll()));\napp.post('/items',async(q,r)=>r.status(201).json(await Item.create(q.body)));\ndb.sync().then(()=>app.listen(5000));\n\n// frontend: src/App.jsx\nimport {useState,useEffect} from 'react';\nexport default function App(){\n const [items,setItems]=useState([]);\n const [name,setName]=useState('');\n const load=()=>fetch('http://localhost:5000/items').then(r=>r.json()).then(setItems);\n useEffect(()=>{load()},[]);\n const add=async()=>{\n  await fetch('http://localhost:5000/items',{method:'POST',\n   headers:{'Content-Type':'application/json'},\n   body:JSON.stringify({name,price:10})});\n  load();\n };\n return(<div>\n  <input value={name} onChange={e=>setName(e.target.value)}/>\n  <button onClick={add}>Add</button>\n  {items.map(i=><li key={i.id}>{i.name}</li>)}\n </div>);\n}"]
+];
+const V=[
+["What is Node.js?","A JavaScript runtime built on Chrome's V8 engine that runs JS outside the browser. Single-threaded, event-driven, non-blocking."],
+["What is npm and package.json?","npm is the package manager. package.json lists the project's name, scripts and dependencies."],
+["module.exports vs require?","module.exports shares code from a file; require loads it in another file."],
+["What is the event loop?","It picks finished async tasks from the queue and runs their callbacks when the call stack is empty. This is how Node stays non-blocking."],
+["Callback vs Promise vs async/await?","Callbacks nest and get messy. Promises chain with then/catch. async/await looks like normal code and is built on promises."],
+["What is middleware in Express?","A function (req,res,next) that runs between request and response. Examples: express.json(), cors(), express.static()."],
+["Why use streams?","They process data in chunks, so big files need little memory. pipe() connects a readable to a writable."],
+["GET vs POST vs PUT vs DELETE?","Read, create, update and delete. They map to CRUD."],
+["What is an ORM? Why Sequelize?","An ORM maps tables to JS objects, so you write model methods instead of SQL. Sequelize supports MySQL, Postgres, SQLite."],
+["Association types in Sequelize?","hasOne (one-to-one), hasMany (one-to-many), belongsTo (child side with the foreign key), belongsToMany (many-to-many, needs a through table)."],
+["sync() vs migration?","sync() creates tables from models directly. Migrations are versioned scripts with up and down, safer for real projects."],
+["What is CORS and how do you fix it?","A browser rule that blocks a page from calling a different origin (port or domain) unless the server allows it. Fix: app.use(cors()) with the cors package."],
+["Why use a gateway?","One entry point for many services. It routes, and can handle authentication and logging."],
+["What is cron?","A scheduler that runs tasks at set times. Five fields: minute hour day month weekday."],
+["What is Webpack?","A bundler that combines modules and assets into optimized output files."],
+["Props vs state?","Props come from the parent and are read-only. State is owned by the component and changes with setState."],
+["What is useEffect?","A hook for side effects (fetching data, timers). The dependency array controls when it runs; [] means once."],
+["What is the virtual DOM?","A lightweight copy of the DOM. React compares versions and updates only what changed."],
+["Why Vite?","Fast dev server and build tool, much quicker than create-react-app."],
+["What does Redux do?","Keeps global state in one store. Actions are dispatched, reducers return the new state."]
+];
+const G=[["Node Basics","🟢",0,3,["REPL","npm","http"]],["Express Basics","🚂",4,5,["routing","middleware"]],["Modules & Files","📦",6,9,["modules","fs","path"]],["Serving Pages","🌐",10,11,["sendFile","static"]],["Async Node","⏳",12,17,["callbacks","promises","events"]],["Streams & CLI","🌊",18,22,["streams","pipe","argv"]],["Routes & Tools","🧪",23,26,["Postman","gateway","cron","webpack"]],["Sequelize","🗄️",27,31,["models","associations","queries"]],["React (Vite)","⚛️",32,35,["props","hooks","router","redux"]],["Integration & CORS","🔗",36,36,["fetch","cors","Q2"]]];
+const QR=[["React hooks",["Hook","Use"],[["useState","Hold changing data"],["useEffect","Side effects: fetch, timers"],["useRef","DOM access, value without re-render"],["useContext","Read shared data"],["useReducer","Complex state with actions"],["useMemo","Cache a computed value"],["useCallback","Cache a function"],["useLayoutEffect","Effect before paint"],["useId","Unique ids"],["useParams, useNavigate","React Router"],["useSelector, useDispatch","Redux"]]],["HTTP methods and status codes",["Item","Meaning"],[["GET","Read data"],["POST","Create (body)"],["PUT","Update"],["DELETE","Remove"],["200 / 201","OK / Created"],["400 / 404 / 500","Bad request / Not found / Server error"]]],
+["Sequelize associations",["Method","Relation"],[["hasOne","One-to-one"],["hasMany","One-to-many"],["belongsTo","Child side, holds the foreign key"],["belongsToMany","Many-to-many, needs through table"]]],
+["Cron fields",["Field","Range"],[["minute","0-59"],["hour","0-23"],["day of month","1-31"],["month","1-12"],["day of week","0-7 (0 and 7 = Sunday)"]]],
+["Common commands",["Command","Purpose"],[["npm init -y","Create package.json"],["npm i pkg / -D pkg","Install / dev dependency"],["node file.js","Run a file"],["npm create vite@latest","New React app"],["npm run dev","Start Vite (port 5173)"],["npx sequelize-cli db:migrate","Run migrations"]]]];
+V.push(["What are React hooks and their rules?","Functions like useState and useEffect that let function components use state and lifecycle features. Rules: call them only at the top level of a component or custom hook, not in loops, conditions or normal functions."]);
+const $=id=>document.getElementById(id),B=document.body;
+function el(t,c,x){const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e}
+function ok(b){b.textContent='Copied';setTimeout(()=>b.textContent='Copy',1200)}
+function cp(b,c){const fb=()=>{const t=el('textarea');t.value=c;B.append(t);t.select();try{document.execCommand('copy')}catch(e){}t.remove();ok(b)};try{navigator.clipboard.writeText(c).then(()=>ok(b),fb)}catch(e){fb()}}
+function blk(c){const d=el('div','blk'),h=el('div','bh'),b=el('button','','Copy');b.onclick=()=>cp(b,c);h.append(el('span','','snippet'),b);d.append(h,el('pre','',c));return d}
+function item(m,i){const t=T[i],h=el('h2','',(i+1)+'. '+t[0]);if(t[1])h.append(el('span','tag',t[1]));m.append(h,el('p','d',t[2]),blk(t[3]))}
+function qa(m,v){m.append(el('div','q',v[0]),el('div','a',v[1]))}
+function head(m,ic,t,s){m.append(el('h1','',ic+' '+t),el('p','sub',s))}
+function home(m){head(m,'📘','Full Stack Development Cheatsheet','Node.js, Express, Sequelize and React (Vite) for the practical exam. Pick a topic.');
+ const st=el('div','stats');[G.length+' Topics',T.length+' Snippets','100% Offline'].forEach(x=>st.append(el('div','',x)));m.append(st);
+ const g=el('div','grid');G.forEach((x,i)=>{const a=el('a','gc');a.href='#g'+i;a.append(el('span','',x[1]),el('b','',x[0]),el('small','',(x[3]-x[2]+1)+' snippets'),el('small','',x[4].join(' · ')));g.append(a)});m.append(g)}
+function group(m,i){const x=G[i];head(m,x[1],x[0],'Journal experiments '+(x[2]+1)+(x[3]>x[2]?' to '+(x[3]+1):''));for(let k=x[2];k<=x[3];k++)item(m,k)}
+function qr(m){head(m,'📋','Quick Ref','Handy tables for fast lookup.');QR.forEach(q=>{m.append(el('h2','',q[0]));const t=el('table'),r=el('tr');q[1].forEach(h=>r.append(el('th','',h)));t.append(r);q[2].forEach(w=>{const r=el('tr');w.forEach(c=>r.append(el('td','',c)));t.append(r)});m.append(t)})}
+function viva(m){head(m,'🎓','Viva Questions','Short answers, exam ready.');V.forEach(v=>qa(m,v))}
+function find(m,s){head(m,'🔍','Search results','');let n=0;
+ T.forEach((t,i)=>{if(t.join(' ').toLowerCase().includes(s)){item(m,i);n++}});
+ V.forEach(v=>{if(v.join(' ').toLowerCase().includes(s)){qa(m,v);n++}});
+ if(!n)m.append(el('p','d','No results found for your search.'))}
+function route(){const h=location.hash.slice(1)||'home',m=$('main');m.innerHTML='';$('q').value='';
+ if(h=='qr')qr(m);else if(h=='viva')viva(m);else if(h[0]=='g'&&G[+h.slice(1)])group(m,+h.slice(1));else home(m);
+ document.querySelectorAll('#sb a').forEach(a=>a.className=a.getAttribute('href')=='#'+h?'on':'');
+ scrollTo(0,0);B.classList.remove('open')}
+function menu(){const s=$('sb');
+ const sec=(t,rows)=>{s.append(el('h3','',t));rows.forEach(r=>{const a=el('a');a.href=r[0];a.append(el('div','',r[1]),el('span','',r[2]||''));s.append(a)})};
+ sec('Navigate',[['#home','⌂ Home',G.length]]);
+ sec('Topics',G.map((x,i)=>['#g'+i,x[1]+' '+x[0],x[3]-x[2]+1]));
+ sec('Reference',[['#qr','📋 Quick Ref'],['#viva','🎓 Viva Questions',V.length]])}
+$('q').oninput=()=>{const s=$('q').value.trim().toLowerCase();if(!s){route();return}const m=$('main');m.innerHTML='';find(m,s)};
+$('mb').onclick=()=>B.classList.toggle(matchMedia('(max-width:760px)').matches?'open':'shut');
+function theme(t){document.documentElement.dataset.theme=t;try{localStorage.setItem('t',t)}catch(e){}}
+let st=null;try{st=localStorage.getItem('t')}catch(e){}
+theme(st||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'));
+$('th').onclick=()=>theme(document.documentElement.dataset.theme=='dark'?'light':'dark');
+addEventListener('hashchange',route);menu();route();
+</script>
+</body>
+</html>
